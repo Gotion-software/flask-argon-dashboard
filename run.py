@@ -1,13 +1,14 @@
 import os
 from flask import Flask, flash, request, redirect, url_for
 from werkzeug.utils import secure_filename
+from subprocess import call
 
 UPLOAD_FOLDER = 'uploads/'
 ALLOWED_EXTENSIONS = {'csv', 'xlsx', 'xls', 'pdf'}
 
 app = Flask(__name__)
+app.secret_key = "secret_key"
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-
 
 def allowed_file(filename):
     return '.' in filename and \
@@ -30,8 +31,9 @@ def upload_file():
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             file.save(os.path.abspath(app.config['UPLOAD_FOLDER'] + filename))
-            return redirect(url_for('uploaded_file',
-                                    filename=filename))
+            cmd = 'scp -i gotion-ec2.pem ' + os.path.abspath(app.config['UPLOAD_FOLDER'] + filename + ' ubuntu@52.8.108.75:~/docker-airflow-1/manual_uploads'
+            call(cmd.split())
+            flash('Successfully uploaded file.')
     return '''
     <!doctype html>
     <title>Upload new File</title>
